@@ -1,0 +1,234 @@
+
+<h2 class="sr-only">Dashboard Administrasi Kependudukan — Kepemilikan Akte Lahir dan Akte Nikah per Dusun/RT</h2>
+
+<style>
+  .db { font-family: var(--font-sans); padding: 0 0 2rem; }
+  .db-header { background: #0F6E56; color: #fff; border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .db-header h1 { margin: 0 0 3px; font-size: 18px; font-weight: 500; color: #fff; }
+  .db-header p { margin: 0; font-size: 13px; color: #9FE1CB; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .tab { padding: 6px 16px; font-size: 13px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; font-family: var(--font-sans); }
+  .tab.active { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .section { display: none; }
+  .section.show { display: block; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .85rem 1rem; }
+  .metric-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .metric-val { font-size: 24px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .metric-val.green { color: #0F6E56; }
+  .metric-val.red { color: #993C1D; }
+  .chart-wrap { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .chart-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 .75rem; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 12px; color: var(--color-text-secondary); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+  .progress-wrap { margin-bottom: .6rem; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .progress-bar-bg { background: var(--color-background-secondary); border-radius: 4px; height: 10px; overflow: hidden; }
+  .progress-bar { height: 10px; border-radius: 4px; transition: width .5s ease; }
+  @media (max-width: 480px) { .chart-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="db">
+  <div class="db-header">
+    <h1>Dashboard Administrasi Kependudukan</h1>
+    <p>Pendataan Keluarga — Kepemilikan Akte Lahir &amp; Akte Nikah · 4 Dusun</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ringkasan',this)">Ringkasan</button>
+    <button class="tab" onclick="showTab('akte_lahir',this)">Akte Lahir</button>
+    <button class="tab" onclick="showTab('akte_nikah',this)">Akte Nikah</button>
+  </div>
+
+  <!-- RINGKASAN -->
+  <div id="ringkasan" class="section show">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total Individu</div>
+        <div class="metric-val">3.308</div>
+        <div class="metric-sub">dalam 4 dusun</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Memiliki Akte Lahir</div>
+        <div class="metric-val green">2.932</div>
+        <div class="metric-sub">88,63% dari total</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Tanpa Akte Lahir</div>
+        <div class="metric-val red">376</div>
+        <div class="metric-sub">11,37% dari total</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total Keluarga</div>
+        <div class="metric-val">828</div>
+        <div class="metric-sub">data akte nikah</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Memiliki Akte Nikah</div>
+        <div class="metric-val green">523</div>
+        <div class="metric-sub">63,2% dari keluarga</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Tidak Berlaku</div>
+        <div class="metric-val">198</div>
+        <div class="metric-sub">23,9% (belum menikah dll)</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">Akte lahir — kepemilikan (dusun)</div>
+        <div class="legend">
+          <span><span class="leg-dot" style="background:#1D9E75"></span>Memiliki</span>
+          <span><span class="leg-dot" style="background:#D85A30"></span>Tidak</span>
+        </div>
+        <div style="position:relative;height:220px;"><canvas id="c-lahir-ring" role="img" aria-label="Donut chart kepemilikan akte lahir total">2932 memiliki, 376 tidak memiliki.</canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Akte nikah — status kepemilikan</div>
+        <div class="legend">
+          <span><span class="leg-dot" style="background:#0F6E56"></span>Ya</span>
+          <span><span class="leg-dot" style="background:#D85A30"></span>Tidak</span>
+          <span><span class="leg-dot" style="background:#888780"></span>Tidak Berlaku</span>
+        </div>
+        <div style="position:relative;height:220px;"><canvas id="c-nikah-ring" role="img" aria-label="Donut chart kepemilikan akte nikah total">523 ya, 107 tidak, 198 tidak berlaku.</canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">Tingkat kepemilikan akte lahir per dusun</div>
+      <div id="progress-bars"></div>
+    </div>
+  </div>
+
+  <!-- AKTE LAHIR -->
+  <div id="akte_lahir" class="section">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Total Individu</div><div class="metric-val">3.308</div><div class="metric-sub">4 dusun</div></div>
+      <div class="metric"><div class="metric-label">Memiliki</div><div class="metric-val green">2.932</div><div class="metric-sub">88,63%</div></div>
+      <div class="metric"><div class="metric-label">Tidak Memiliki</div><div class="metric-val red">376</div><div class="metric-sub">11,37%</div></div>
+      <div class="metric"><div class="metric-label">Coverage Tertinggi</div><div class="metric-val green">92,5%</div><div class="metric-sub">Lapeo Kenje</div></div>
+      <div class="metric"><div class="metric-label">Coverage Terendah</div><div class="metric-val red">82,1%</div><div class="metric-sub">Dusun Galung</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Jumlah individu memiliki vs tidak memiliki akte lahir per dusun</div>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#1D9E75"></span>Memiliki akte lahir</span>
+        <span><span class="leg-dot" style="background:#D85A30"></span>Tidak memiliki</span>
+      </div>
+      <div style="position:relative;height:280px;"><canvas id="c-lahir-bar" role="img" aria-label="Grouped bar chart akte lahir per dusun"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Persentase kepemilikan akte lahir per dusun</div>
+      <div style="position:relative;height:240px;"><canvas id="c-lahir-pct" role="img" aria-label="Bar chart persentase akte lahir per dusun"></canvas></div>
+    </div>
+  </div>
+
+  <!-- AKTE NIKAH -->
+  <div id="akte_nikah" class="section">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Total Keluarga</div><div class="metric-val">828</div><div class="metric-sub">10 RT</div></div>
+      <div class="metric"><div class="metric-label">Ya (memiliki)</div><div class="metric-val green">523</div><div class="metric-sub">63,2%</div></div>
+      <div class="metric"><div class="metric-label">Tidak Memiliki</div><div class="metric-val red">107</div><div class="metric-sub">12,9%</div></div>
+      <div class="metric"><div class="metric-label">Tidak Berlaku</div><div class="metric-val">198</div><div class="metric-sub">23,9%</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Kepemilikan akte nikah per RT</div>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#0F6E56"></span>Ya</span>
+        <span><span class="leg-dot" style="background:#D85A30"></span>Tidak</span>
+        <span><span class="leg-dot" style="background:#888780"></span>Tidak Berlaku</span>
+      </div>
+      <div style="position:relative;height:340px;"><canvas id="c-nikah-bar" role="img" aria-label="Stacked bar chart akte nikah per RT"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Jumlah keluarga per RT</div>
+      <div style="position:relative;height:240px;"><canvas id="c-rt-keluarga" role="img" aria-label="Bar chart jumlah keluarga per RT"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DUSUN = ['Kamp. Baru','Lapeo Kenje','Ujung Baru','Galung'];
+const RT_LABELS = ['RT01/Galung','RT02/Galung','RT01/KBaru','RT02/KBaru','RT01/LKenje','RT02/LKenje','RT03/LKenje','RT01/UBaru','RT02/UBaru','RT03/UBaru'];
+
+const lahirData = {
+  jumlah:  [621, 948, 955, 784],
+  miliki:  [573, 877, 838, 644],
+  tidak:   [48,  71,  117, 140],
+  pct_ya:  [92.27, 92.51, 87.75, 82.14],
+  pct_tdk: [7.73,  7.49,  12.25, 17.86],
+};
+
+const nikahData = {
+  ya:    [55,57,57,49,63,64,33,66,51,28],
+  tidak: [22,15,16, 5, 5,13, 6,11, 8, 6],
+  tb:    [11, 5,18,29,14,19,35,16,24,27],
+  total: [88,77,91,83,82,96,74,93,83,61],
+};
+
+const GREEN='#1D9E75', DKGREEN='#0F6E56', CORAL='#D85A30', GRAY='#888780', LBLUE='#B5D4F4';
+const defOpts = {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'rgba(128,128,128,.1)'}}}};
+
+function showTab(id, el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('show'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  el.classList.add('active');
+}
+
+function buildProgressBars() {
+  const container = document.getElementById('progress-bars');
+  const colors = [DKGREEN, GREEN, '#BA7517', CORAL];
+  DUSUN.forEach((d,i) => {
+    const pct = lahirData.pct_ya[i];
+    container.innerHTML += `
+      <div class="progress-wrap">
+        <div class="progress-label"><span>${d}</span><span style="font-weight:500;color:var(--color-text-primary)">${pct}%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar" style="width:${pct}%;background:${colors[i]}"></div></div>
+      </div>`;
+  });
+}
+
+buildProgressBars();
+
+new Chart('c-lahir-ring', {type:'doughnut', data:{
+  labels:['Memiliki','Tidak'],
+  datasets:[{data:[2932,376], backgroundColor:[GREEN, CORAL], borderWidth:0, hoverOffset:6}]
+}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, cutout:'65%'}});
+
+new Chart('c-nikah-ring', {type:'doughnut', data:{
+  labels:['Ya','Tidak','Tidak Berlaku'],
+  datasets:[{data:[523,107,198], backgroundColor:[DKGREEN, CORAL, GRAY], borderWidth:0, hoverOffset:6}]
+}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, cutout:'65%'}});
+
+new Chart('c-lahir-bar', {type:'bar', data:{
+  labels: DUSUN,
+  datasets:[
+    {label:'Memiliki', data:lahirData.miliki, backgroundColor:GREEN},
+    {label:'Tidak', data:lahirData.tidak, backgroundColor:CORAL},
+  ]
+}, options:defOpts});
+
+new Chart('c-lahir-pct', {type:'bar', data:{
+  labels: DUSUN,
+  datasets:[{label:'% Memiliki', data:lahirData.pct_ya, backgroundColor:[DKGREEN,GREEN,'#BA7517',CORAL]}]
+}, options:{...defOpts, scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(128,128,128,.1)'},min:75,max:100,ticks:{callback:v=>v+'%'}}}}});
+
+new Chart('c-nikah-bar', {type:'bar', data:{
+  labels: RT_LABELS,
+  datasets:[
+    {label:'Ya', data:nikahData.ya, backgroundColor:DKGREEN},
+    {label:'Tidak', data:nikahData.tidak, backgroundColor:CORAL},
+    {label:'Tidak Berlaku', data:nikahData.tb, backgroundColor:GRAY},
+  ]
+}, options:{...defOpts, scales:{x:{grid:{display:false},ticks:{font:{size:11},maxRotation:40}}, y:{stacked:false, grid:{color:'rgba(128,128,128,.1)'}}}}});
+
+new Chart('c-rt-keluarga', {type:'bar', data:{
+  labels: RT_LABELS,
+  datasets:[{label:'Jumlah Keluarga', data:nikahData.total, backgroundColor:[DKGREEN,DKGREEN,GREEN,GREEN,'#BA7517','#BA7517','#BA7517',CORAL,CORAL,CORAL]}]
+}, options:{...defOpts, scales:{x:{grid:{display:false},ticks:{font:{size:11},maxRotation:40}},y:{grid:{color:'rgba(128,128,128,.1)'}}}}});
+</script>
